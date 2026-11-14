@@ -1,0 +1,1692 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WATTWISE | Smart Classroom</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    --bg:#080e1a;
+    --panel:#0d1728;
+    --card:#101d30;
+    --border:#24344d;
+    --blue:#0866f5;
+    --text:#edf4ff;
+    --muted:#8fa3bd;
+    --green:#35d69a;
+    --yellow:#f4c75e;
+    --red:#ff6969;
+}
+
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Inter,Arial,sans-serif;
+}
+
+html { scroll-behavior:smooth; }
+
+body {
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    padding:20px;
+}
+
+button {
+    border:0;
+    cursor:pointer;
+    font-family:inherit;
+    border-radius:25px;
+    padding:11px 16px;
+    font-size:12px;
+    font-weight:600;
+    color:white;
+    background:#172943;
+    transition:.2s;
+}
+
+button:hover {
+    transform:translateY(-2px);
+    filter:brightness(1.2);
+}
+
+button:disabled {
+    opacity:.4;
+    cursor:not-allowed;
+}
+
+.primary-btn { background:var(--blue); }
+.secondary-btn { border:1px solid #2a4568; }
+
+.app {
+    max-width:1600px;
+    min-height:calc(100vh - 40px);
+    margin:auto;
+    background:var(--bg);
+    border:1px solid #1d2b40;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 25px 80px rgba(0,0,0,.35);
+}
+
+.topbar {
+    min-height:85px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:18px 28px;
+    background:#0b1526;
+    border-bottom:1px solid var(--border);
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.brand,.topbar-right {
+    display:flex;
+    align-items:center;
+    gap:13px;
+    flex-wrap:wrap;
+}
+
+.logo,.assistant-avatar {
+    width:45px;
+    height:45px;
+    border-radius:13px;
+    display:grid;
+    place-items:center;
+    background:linear-gradient(145deg,#0878ff,#0648c9);
+    font-size:23px;
+}
+
+.brand-name { font-size:20px;font-weight:700; }
+.brand-subtitle { color:var(--muted);font-size:11px;margin-top:4px; }
+
+.connection-pill {
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 14px;
+    border:1px solid var(--border);
+    border-radius:30px;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.connection-dot {
+    width:8px;
+    height:8px;
+    background:var(--yellow);
+    border-radius:50%;
+}
+
+.connection-dot.connected {
+    background:var(--green);
+    box-shadow:0 0 10px var(--green);
+}
+
+.app-layout {
+    display:grid;
+    grid-template-columns:230px minmax(0,1fr);
+    min-height:900px;
+}
+
+.sidebar {
+    background:#0d1727;
+    border-right:1px solid var(--border);
+    padding:28px 18px;
+}
+
+.sidebar h2 {
+    font-size:21px;
+    font-weight:500;
+    margin-bottom:25px;
+}
+
+.nav-label {
+    color:#647994;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:1px;
+    margin:25px 0 10px;
+}
+
+.nav-link {
+    display:block;
+    padding:13px;
+    margin:5px 0;
+    border-radius:9px;
+    text-decoration:none;
+    color:#a8bad1;
+    font-size:12px;
+}
+
+.nav-link:hover,.nav-link.active {
+    background:#102a50;
+    color:#52a5ff;
+}
+
+.sidebar-note {
+    margin-top:35px;
+    padding:15px;
+    background:#101f34;
+    border:1px solid var(--border);
+    border-radius:12px;
+}
+
+.sidebar-note strong {
+    color:var(--yellow);
+    font-size:11px;
+}
+
+.sidebar-note p {
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.7;
+    margin-top:8px;
+}
+
+.main-content {
+    padding:30px;
+    min-width:0;
+}
+
+.page-heading,.section-heading {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.page-heading { margin-bottom:20px; }
+
+.page-heading h1 {
+    font-size:26px;
+    font-weight:600;
+}
+
+.page-heading p {
+    color:var(--muted);
+    font-size:12px;
+    margin-top:7px;
+}
+
+.live-tag {
+    color:var(--green);
+    background:#102a29;
+    border:1px solid #235c4c;
+    border-radius:20px;
+    padding:9px 13px;
+    font-size:10px;
+    font-weight:700;
+}
+
+.demo-controls {
+    display:flex;
+    flex-wrap:wrap;
+    gap:9px;
+    margin:20px 0 12px;
+}
+
+.demo-banner {
+    display:none;
+    padding:12px;
+    margin-bottom:15px;
+    border:1px solid #8c7132;
+    border-radius:10px;
+    background:rgba(244,199,94,.08);
+    color:#f4d98d;
+    font-size:11px;
+    line-height:1.6;
+}
+
+.demo-banner.visible { display:block; }
+
+.section-heading {
+    margin:30px 0 15px;
+    scroll-margin-top:20px;
+}
+
+.section-heading h2 {
+    font-size:16px;
+    font-weight:600;
+}
+
+.section-heading span {
+    color:var(--muted);
+    font-size:10px;
+}
+
+.dashboard {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:14px;
+}
+
+.card {
+    background:linear-gradient(145deg,#111f33,#0e1a2c);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:19px;
+    min-width:0;
+    transition:.25s;
+    animation:fadeUp .5s ease both;
+}
+
+.card:hover {
+    transform:translateY(-3px);
+    border-color:#35547b;
+}
+
+.card-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.card h3 {
+    color:var(--muted);
+    font-size:11px;
+    font-weight:500;
+}
+
+.card-icon {
+    background:#142d50;
+    border-radius:9px;
+    padding:8px;
+}
+
+.value {
+    font-size:27px;
+    font-weight:600;
+    margin-top:17px;
+}
+
+.blue-value { color:#4a9dff; }
+
+.status {
+    color:var(--muted);
+    font-size:10px;
+    margin-top:8px;
+}
+
+.progress-background {
+    height:6px;
+    background:#253750;
+    border-radius:20px;
+    margin-top:13px;
+    overflow:hidden;
+}
+
+.progress-fill {
+    height:100%;
+    width:0;
+    background:linear-gradient(90deg,#0866f5,#55b5ff);
+    transition:width .4s;
+}
+
+.chart-grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+
+.chart-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:15px;
+    padding:20px;
+    min-width:0;
+}
+
+.chart-card h3 { font-size:13px; }
+
+.chart-card p {
+    color:var(--muted);
+    font-size:10px;
+    margin-top:6px;
+    line-height:1.6;
+}
+
+.chart-container {
+    height:230px;
+    margin-top:18px;
+    position:relative;
+}
+
+.chart-note {
+    color:#7186a6;
+    font-size:10px;
+    line-height:1.6;
+    margin-top:12px;
+}
+
+.led-grid {
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:14px;
+}
+
+.led-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    text-align:center;
+    padding:20px;
+}
+
+.led-card h3 {
+    color:var(--muted);
+    font-size:11px;
+}
+
+.bulb {
+    font-size:38px;
+    margin:15px 0;
+    filter:grayscale(1);
+    color:#63738a;
+    transition:.3s;
+}
+
+.bulb.on {
+    filter:none;
+    color:#ffd15c;
+    animation:glow 1.7s infinite alternate;
+}
+
+.led-state {
+    font-size:10px;
+    color:var(--muted);
+}
+
+.led-state.on { color:var(--green); }
+
+.temperature-alert,.environment-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+}
+
+.temperature-alert h3 {
+    font-size:13px;
+    margin-bottom:13px;
+}
+
+.alert-message {
+    font-size:16px;
+    font-weight:600;
+    margin-bottom:7px;
+}
+
+.alert-description {
+    color:var(--muted);
+    font-size:11px;
+    line-height:1.6;
+}
+
+.alert-normal { border-color:#238e6c; }
+.alert-moderate { border-color:#ad8730; }
+.alert-high,.alert-error { border-color:#b94e58; }
+
+.alert-normal .alert-message { color:var(--green); }
+.alert-moderate .alert-message { color:var(--yellow); }
+.alert-high .alert-message,.alert-error .alert-message { color:var(--red); }
+
+.environment-grid {
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+
+.environment-card h3 {
+    color:var(--muted);
+    font-size:11px;
+}
+
+.environment-value {
+    font-size:30px;
+    font-weight:600;
+    color:#54a5ff;
+    margin-top:15px;
+}
+
+.environment-caption {
+    color:var(--muted);
+    font-size:10px;
+    margin-top:7px;
+}
+
+.sensor-footer {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:14px;
+    margin-top:14px;
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.7;
+}
+
+/* ASSISTANT */
+
+.assistant-panel {
+    background:linear-gradient(145deg,#101f35,#0b1728);
+    border:1px solid #29466a;
+    border-radius:17px;
+    overflow:hidden;
+}
+
+.assistant-header {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:18px 20px;
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
+}
+
+.assistant-brand {
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.assistant-avatar {
+    width:43px;
+    height:43px;
+    font-size:21px;
+}
+
+.assistant-brand h3 { font-size:14px; }
+
+.assistant-brand p {
+    color:var(--muted);
+    font-size:10px;
+    margin-top:5px;
+}
+
+.assistant-status {
+    display:flex;
+    align-items:center;
+    gap:7px;
+    font-size:10px;
+    color:var(--yellow);
+    background:#292719;
+    border:1px solid #66552b;
+    padding:8px 11px;
+    border-radius:20px;
+}
+
+.assistant-status.ready {
+    color:var(--green);
+    background:#102a29;
+    border-color:#235c4c;
+}
+
+.status-dot {
+    width:7px;
+    height:7px;
+    background:currentColor;
+    border-radius:50%;
+}
+
+.assistant-notice {
+    padding:12px 18px;
+    background:rgba(244,199,94,.06);
+    border-bottom:1px solid rgba(244,199,94,.16);
+    color:#d9c68f;
+    font-size:10px;
+    line-height:1.7;
+}
+
+.chat-messages {
+    height:390px;
+    overflow-y:auto;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.chat-message {
+    display:flex;
+    gap:10px;
+    max-width:88%;
+    animation:fadeUp .25s ease;
+}
+
+.chat-message.user {
+    align-self:flex-end;
+    flex-direction:row-reverse;
+}
+
+.chat-avatar {
+    width:30px;
+    height:30px;
+    flex-shrink:0;
+    display:grid;
+    place-items:center;
+    border-radius:10px;
+    background:#17345a;
+    font-size:13px;
+}
+
+.chat-message.user .chat-avatar { background:#1557a7; }
+
+.chat-bubble {
+    background:#15253a;
+    border:1px solid #263d5b;
+    border-radius:4px 13px 13px 13px;
+    padding:12px 14px;
+    font-size:11px;
+    line-height:1.8;
+    color:#dce8f7;
+    overflow-wrap:anywhere;
+    white-space:pre-wrap;
+}
+
+.chat-message.user .chat-bubble {
+    background:#103c73;
+    border-color:#205c9d;
+    border-radius:13px 4px 13px 13px;
+}
+
+.chat-time {
+    color:#7186a6;
+    font-size:9px;
+    margin-top:6px;
+}
+
+.chat-suggestions {
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    padding:0 20px 17px;
+}
+
+.suggestion-btn {
+    border:1px solid #29496e;
+    background:#10243c;
+    color:#a9c9ed;
+    font-size:10px;
+    padding:9px 12px;
+}
+
+.chat-input-area {
+    padding:16px 18px;
+    background:#0a1423;
+    border-top:1px solid var(--border);
+}
+
+.chat-input-row {
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.chat-input {
+    min-width:0;
+    flex:1;
+    background:#111f33;
+    border:1px solid #2a405e;
+    outline:none;
+    color:var(--text);
+    border-radius:25px;
+    padding:14px 17px;
+    font-size:12px;
+}
+
+.chat-input:focus { border-color:#168bff; }
+.chat-input::placeholder { color:#7186a6; }
+
+.send-btn {
+    width:46px;
+    height:46px;
+    padding:0;
+    flex-shrink:0;
+    border-radius:50%;
+    background:#0866f5;
+    font-size:18px;
+}
+
+.chat-footer {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:10px;
+    color:#7186a6;
+    font-size:9px;
+}
+
+.typing-indicator {
+    color:#8fa3bd;
+    font-size:10px;
+    padding:0 20px 15px;
+    display:none;
+}
+
+.typing-indicator.visible { display:block; }
+
+.info {
+    background:linear-gradient(145deg,#10233d,#0e1b2d);
+    border:1px solid #27466e;
+    border-radius:15px;
+    padding:22px;
+    color:#a8bad1;
+    font-size:12px;
+    line-height:1.9;
+}
+
+.info h3 {
+    color:#59aaff;
+    font-size:14px;
+    margin-bottom:10px;
+}
+
+.info strong { color:#eaf3ff; }
+
+footer {
+    text-align:center;
+    color:#62758f;
+    font-size:10px;
+    padding:30px 10px 10px;
+}
+
+@keyframes fadeUp {
+    from { opacity:0;transform:translateY(15px); }
+    to { opacity:1;transform:translateY(0); }
+}
+
+@keyframes glow {
+    from { text-shadow:0 0 8px #ffd15c; }
+    to { text-shadow:0 0 25px #ffd15c; }
+}
+
+@media(max-width:1100px) {
+    .dashboard { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .chart-grid { grid-template-columns:1fr; }
+    .led-grid { grid-template-columns:repeat(4,minmax(0,1fr)); }
+}
+
+@media(max-width:750px) {
+    body { padding:0; }
+    .app { border-radius:0;border:0; }
+    .app-layout { display:block; }
+    .sidebar { display:none; }
+    .main-content { padding:18px; }
+    .brand-subtitle { display:none; }
+}
+
+@media(max-width:520px) {
+    .dashboard,.led-grid,.environment-grid {
+        grid-template-columns:1fr;
+    }
+    .chat-message { max-width:96%; }
+    .chat-messages { height:350px; }
+}
+
+@media(prefers-reduced-motion:reduce) {
+    *,*::before,*::after {
+        animation-duration:.01ms!important;
+        transition-duration:.01ms!important;
+    }
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header class="topbar">
+    <div class="brand">
+        <div class="logo">⚡</div>
+        <div>
+            <div class="brand-name">WATTWISE</div>
+            <div class="brand-subtitle">Smart Classroom Energy Management</div>
+        </div>
+    </div>
+
+    <div class="topbar-right">
+        <div class="connection-pill">
+            <span class="connection-dot" id="connectionDot"></span>
+            <span id="connectionStatus">Not connected</span>
+        </div>
+        <button class="primary-btn" id="connectBtn">⚡ Connect Arduino</button>
+    </div>
+</header>
+
+<div class="app-layout">
+
+<aside class="sidebar">
+    <h2>Dashboard</h2>
+    <div class="nav-label">WORKSPACE</div>
+    <a href="#overview" class="nav-link active">⌂ Overview</a>
+    <a href="#sensors" class="nav-link">◉ Sensor Monitoring</a>
+    <a href="#lighting" class="nav-link">☼ Smart Lighting</a>
+    <div class="nav-label">ANALYTICS</div>
+    <a href="#energy" class="nav-link">ϟ Energy Usage</a>
+    <a href="#weekly" class="nav-link">▥ Weekly Comparison</a>
+    <div class="nav-label">ENVIRONMENT</div>
+    <a href="#temperature" class="nav-link">♨ Temperature</a>
+    <a href="#environment" class="nav-link">♧ Environment</a>
+    <div class="nav-label">INTELLIGENCE</div>
+    <a href="#assistant" class="nav-link">✦ WATTWISE Assistant</a>
+
+    <div class="sidebar-note">
+        <strong>💡 Smart Energy Tip</strong>
+        <p>Use natural daylight whenever possible. Smart lighting helps reduce unnecessary electricity use.</p>
+    </div>
+</aside>
+
+<main class="main-content">
+
+<section id="overview">
+    <div class="page-heading">
+        <div>
+            <h1>Classroom Overview</h1>
+            <p>Monitor your classroom's energy and environment in real time.</p>
+        </div>
+        <div class="live-tag">● LIVE MONITORING</div>
+    </div>
+
+    <div class="demo-controls">
+        <button class="secondary-btn" id="demoBtn">▶ Demo Mode</button>
+        <button class="secondary-btn" id="pauseBtn" disabled>⏸ Pause</button>
+        <button class="secondary-btn" id="resetEnergyBtn">↻ Reset Energy Graph</button>
+    </div>
+
+    <div class="demo-banner" id="demoBanner">
+        DEMO MODE: These readings are simulated for presentation purposes.
+        Connect the Arduino to display actual sensor readings.
+    </div>
+
+    <div class="section-heading" id="sensors">
+        <h2>Live Sensor Readings</h2>
+        <span>Updated automatically</span>
+    </div>
+
+    <div class="dashboard">
+        <div class="card" id="motionCard">
+            <div class="card-top"><h3>Motion Detection</h3><div class="card-icon">👁</div></div>
+            <div class="value" id="motionValue">--</div>
+            <div class="status" id="motionStatus">Waiting for PIR sensor</div>
+        </div>
+
+        <div class="card" id="lightCard">
+            <div class="card-top"><h3>Light Intensity</h3><div class="card-icon">☀</div></div>
+            <div class="value blue-value" id="lightValue">--</div>
+            <div class="status" id="lightStatus">Waiting for LDR sensor</div>
+            <div class="progress-background"><div class="progress-fill" id="lightBar"></div></div>
+        </div>
+
+        <div class="card" id="ledCard">
+            <div class="card-top"><h3>Active LEDs</h3><div class="card-icon">💡</div></div>
+            <div class="value" id="ledValue">-- / 8</div>
+            <div class="status" id="ledStatus">Waiting for lighting data</div>
+        </div>
+
+        <div class="card" id="energyCard">
+            <div class="card-top"><h3>Energy Mode</h3><div class="card-icon">⚡</div></div>
+            <div class="value" id="energyValue">--</div>
+            <div class="status" id="energyStatus">Waiting for system data</div>
+        </div>
+
+        <div class="card" id="tempCard">
+            <div class="card-top"><h3>Temperature</h3><div class="card-icon">🌡</div></div>
+            <div class="value" id="tempValue">-- °C</div>
+            <div class="status">DHT11 temperature sensor</div>
+        </div>
+
+        <div class="card" id="humidityCard">
+            <div class="card-top"><h3>Humidity</h3><div class="card-icon">💧</div></div>
+            <div class="value" id="humidityValue">-- %</div>
+            <div class="status">DHT11 humidity sensor</div>
+        </div>
+    </div>
+</section>
+
+<section id="lighting">
+    <div class="section-heading">
+        <h2>Smart Lighting System</h2>
+        <span>8 LED status indicators</span>
+    </div>
+
+    <div class="led-grid">
+        <div class="led-card"><h3>Classroom LED 1</h3><div class="bulb" id="bulb1">💡</div><div class="led-state" id="led1Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 2</h3><div class="bulb" id="bulb2">💡</div><div class="led-state" id="led2Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 3</h3><div class="bulb" id="bulb3">💡</div><div class="led-state" id="led3Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 4</h3><div class="bulb" id="bulb4">💡</div><div class="led-state" id="led4Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 5</h3><div class="bulb" id="bulb5">💡</div><div class="led-state" id="led5Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 6</h3><div class="bulb" id="bulb6">💡</div><div class="led-state" id="led6Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 7</h3><div class="bulb" id="bulb7">💡</div><div class="led-state" id="led7Status">OFF</div></div>
+        <div class="led-card"><h3>Classroom LED 8</h3><div class="bulb" id="bulb8">💡</div><div class="led-state" id="led8Status">OFF</div></div>
+    </div>
+</section>
+
+<section id="energy">
+    <div class="section-heading">
+        <h2>Energy Analytics</h2>
+        <span>Estimated energy usage</span>
+    </div>
+
+    <div class="chart-grid">
+        <div class="chart-card">
+            <h3>Live Energy Comparison</h3>
+            <p>Compare estimated cumulative energy use with and without WATTWISE.</p>
+            <div class="chart-container"><canvas id="liveEnergyChart"></canvas></div>
+            <div class="chart-note" id="energySummary">Current estimated power: 0.00 W</div>
+            <div class="chart-note">
+                Blue: WATTWISE. Orange: without WATTWISE, assuming all eight prototype LEDs remain ON. Estimate uses 0.06 W per LED, not direct electricity measurements.
+            </div>
+        </div>
+
+        <div class="chart-card" id="weekly">
+            <h3>Weekly Energy Comparison</h3>
+            <p>Illustrative comparison of energy use with and without smart lighting.</p>
+            <div class="chart-container"><canvas id="weeklyEnergyChart"></canvas></div>
+            <div class="chart-note">Weekly values are sample figures for demonstration, not measured results.</div>
+        </div>
+    </div>
+</section>
+
+<section id="temperature">
+    <div class="section-heading"><h2>Temperature Monitoring</h2><span>DHT11 sensor</span></div>
+    <div class="temperature-alert" id="temperatureAlert">
+        <h3>Classroom Temperature Status</h3>
+        <div class="alert-message" id="alertMessage">Waiting for sensor...</div>
+        <div class="alert-description" id="alertDescription">Temperature information will appear here when the DHT11 sensor is connected.</div>
+    </div>
+</section>
+
+<section id="environment">
+    <div class="section-heading"><h2>Classroom Environment</h2><span>Live environmental readings</span></div>
+    <div class="environment-grid">
+        <div class="environment-card">
+            <h3>Temperature</h3>
+            <div class="environment-value" id="bottomTemp">-- °C</div>
+            <div class="environment-caption">Current classroom temperature</div>
+        </div>
+        <div class="environment-card">
+            <h3>Humidity</h3>
+            <div class="environment-value" id="bottomHumidity">-- %</div>
+            <div class="environment-caption">Current relative humidity</div>
+        </div>
+    </div>
+    <div class="sensor-footer" id="environmentStatus">
+        DHT11 sensor status: Waiting for data. This sensor measures temperature and humidity, not air quality or CO₂.
+    </div>
+</section>
+
+<section id="assistant">
+    <div class="section-heading"><h2>✦ WATTWISE Assistant</h2><span>Your classroom energy companion</span></div>
+
+    <div class="assistant-panel">
+        <div class="assistant-header">
+            <div class="assistant-brand">
+                <div class="assistant-avatar">🤖</div>
+                <div><h3>WATTWISE AI</h3><p>Smart Classroom Intelligence</p></div>
+            </div>
+            <div class="assistant-status" id="assistantStatus">
+                <span class="status-dot"></span>
+                <span id="assistantStatusText">Backend not connected</span>
+            </div>
+        </div>
+
+        <div class="assistant-notice">
+            The assistant sends your question and current classroom sensor readings to the WATTWISE backend. Never put your API key in this webpage.
+        </div>
+
+        <div class="chat-messages" id="chatMessages">
+            <div class="chat-message assistant">
+                <div class="chat-avatar">⚡</div>
+                <div>
+                    <div class="chat-bubble">Hello! I'm WATTWISE Assistant.
+
+I can help explain your classroom's energy usage, sensor readings, lighting decisions and environmental conditions.
+
+Connect your Arduino, then ask me a question!</div>
+                    <div class="chat-time">WATTWISE Assistant</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="typing-indicator" id="typingIndicator">WATTWISE is thinking...</div>
+
+        <div class="chat-suggestions">
+            <button class="suggestion-btn" data-question="Why are the current LEDs on or off?">💡 Explain my lights</button>
+            <button class="suggestion-btn" data-question="Analyse my current classroom energy usage.">⚡ Analyse energy</button>
+            <button class="suggestion-btn" data-question="Explain the current temperature and humidity readings.">🌡 Check environment</button>
+            <button class="suggestion-btn" data-question="Give me some suggestions to save more energy in this classroom.">🌱 Energy-saving ideas</button>
+        </div>
+
+        <div class="chat-input-area">
+            <form class="chat-input-row" id="chatForm">
+                <input type="text" class="chat-input" id="chatInput" placeholder="Ask WATTWISE something..." autocomplete="off" maxlength="500" required>
+                <button type="submit" class="send-btn" id="sendBtn" title="Send message">➤</button>
+            </form>
+            <div class="chat-footer">
+                <span>AI responses require the private backend to be configured.</span>
+                <span id="chatDataStatus">Sensor data: waiting</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="information">
+    <div class="section-heading"><h2>About WATTWISE</h2></div>
+    <div class="info">
+        <h3>⚡ Smart Classroom Energy Management</h3>
+        <p><strong>WATTWISE</strong> is a smart classroom model designed to reduce unnecessary electricity use. PIR sensors detect movement, an LDR measures light intensity, and the system controls eight classroom LEDs based on the conditions.</p>
+        <p>The DHT11 sensor monitors temperature and humidity. The dashboard displays sensor readings, lighting status and estimated energy use.</p>
+        <p>Energy calculations are estimates based on assumed LED power. Actual energy savings require real power measurements.</p>
+    </div>
+</section>
+
+<footer>WATTWISE | Smart Classroom Energy Management Project</footer>
+
+</main>
+</div>
+</div>
+
+<script>
+// =====================================
+// WATTWISE CONFIGURATION
+// =====================================
+
+const LED_POWER_WATTS = 0.06;
+const LED_COUNT = 8;
+
+let port = null;
+let reader = null;
+let demoTimer = null;
+let demoIndex = 0;
+let demoRunning = false;
+let demoPaused = false;
+let previousValues = {};
+
+let latestSensorData = null;
+let currentDataSource = "none";
+
+let wattwiseEnergyWh = 0;
+let baselineEnergyWh = 0;
+let lastUpdateTime = null;
+let lastPowerWatts = 0;
+let currentLedCount = 0;
+
+const $ = id => document.getElementById(id);
+
+Chart.defaults.color = "#8fa3bd";
+Chart.defaults.font.family = "Inter";
+
+// =====================================
+// LIVE ENERGY GRAPH
+// =====================================
+
+const liveChart = new Chart($("liveEnergyChart"), {
+    type:"line",
+    data:{
+        labels:["Waiting for data"],
+        datasets:[
+            {
+                label:"With WATTWISE",
+                data:[0],
+                borderColor:"#168bff",
+                backgroundColor:"rgba(22,139,255,.10)",
+                borderWidth:3,
+                fill:false,
+                tension:0.25,
+                pointRadius:2
+            },
+            {
+                label:"Without WATTWISE (estimated)",
+                data:[0],
+                borderColor:"#f4a64f",
+                backgroundColor:"rgba(244,166,79,.08)",
+                borderWidth:3,
+                fill:false,
+                tension:0.25,
+                pointRadius:2
+            }
+        ]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        animation:false,
+        interaction:{intersect:false,mode:"index"},
+        plugins:{
+            legend:{display:true,position:"bottom",labels:{boxWidth:10,font:{size:10}}},
+            tooltip:{
+                callbacks:{
+                    label:context => context.dataset.label + ": " + context.parsed.y.toFixed(6) + " Wh"
+                }
+            }
+        },
+        scales:{
+            x:{ticks:{maxTicksLimit:6,maxRotation:0},grid:{color:"rgba(143,163,189,.08)"}},
+            y:{
+                beginAtZero:true,
+                title:{display:true,text:"Cumulative energy (Wh)"},
+                ticks:{callback:value => Number(value).toFixed(6) + " Wh"},
+                grid:{color:"rgba(143,163,189,.08)"}
+            }
+        }
+    }
+});
+
+// =====================================
+// WEEKLY GRAPH
+// =====================================
+
+const weeklyChart = new Chart($("weeklyEnergyChart"), {
+    type:"bar",
+    data:{
+        labels:["Monday","Tuesday","Wednesday","Thursday","Friday"],
+        datasets:[
+            {
+                label:"Without smart lighting",
+                data:[1.8,2.0,1.9,2.1,1.8],
+                backgroundColor:"#42617f",
+                borderRadius:5
+            },
+            {
+                label:"With smart lighting",
+                data:[1.1,1.2,1.0,1.3,1.1],
+                backgroundColor:"#168bba",
+                borderRadius:5
+            }
+        ]
+    },
+    options:{
+        responsive:true,
+        maintainAspectRatio:false,
+        plugins:{legend:{labels:{boxWidth:10,font:{size:10}}}},
+        scales:{
+            x:{grid:{display:false}},
+            y:{beginAtZero:true,grid:{color:"rgba(143,163,189,.08)"},title:{display:true,text:"Illustrative energy (kWh)"}}
+        }
+    }
+});
+
+// =====================================
+// MATCH ARDUINO LED THRESHOLDS
+// =====================================
+
+function estimateLEDCount(light,lightsOn) {
+    if (!lightsOn) return 0;
+
+    if (light > 850) return 8;
+    if (light > 780) return 6;
+    if (light > 700) return 4;
+
+    return 0;
+}
+
+// =====================================
+// CARD ANIMATION
+// =====================================
+
+function highlightCard(id,value) {
+    const card = $(id);
+    if (!card) return;
+
+    if (previousValues[id] !== value) {
+        card.classList.remove("updated");
+        void card.offsetWidth;
+        card.classList.add("updated");
+        previousValues[id] = value;
+    }
+}
+
+// =====================================
+// DASHBOARD UPDATE
+// =====================================
+
+function updateDashboard(data) {
+    const motion = Number(data.motion);
+    const light = Number(data.light);
+    const lightsOn = Number(data.lights);
+
+    const temperature = data.temp;
+    const humidity = data.humidity;
+
+    if (![motion,light,lightsOn].every(Number.isFinite)) return;
+
+    if (
+        (motion !== 0 && motion !== 1) ||
+        (lightsOn !== 0 && lightsOn !== 1) ||
+        light < 0 || light > 1023
+    ) return;
+
+    const ledCount = estimateLEDCount(light,lightsOn);
+
+    latestSensorData = {
+        motion,
+        light,
+        lightsOn,
+        activeLEDs:ledCount,
+        temperature:Number.isFinite(Number(temperature)) ? Number(temperature) : null,
+        humidity:Number.isFinite(Number(humidity)) ? Number(humidity) : null,
+        currentPowerWatts:ledCount * LED_POWER_WATTS,
+        wattwiseEnergyWh,
+        baselineEnergyWh,
+        dataSource:currentDataSource,
+        updatedAt:new Date().toISOString()
+    };
+
+    $("chatDataStatus").textContent =
+        currentDataSource === "arduino" ? "Sensor data: live Arduino" :
+        currentDataSource === "demo" ? "Sensor data: simulated demo" :
+        "Sensor data: waiting";
+
+    // Motion
+    $("motionValue").textContent = motion ? "Detected" : "None";
+    $("motionStatus").textContent = motion ? "Movement detected in classroom" : "No movement detected";
+    highlightCard("motionCard",motion);
+
+    // Light
+    $("lightValue").textContent = light + " / 1023";
+
+    const brightness = Math.max(0,Math.min(100,100-(light/1023*100)));
+    $("lightBar").style.width = brightness + "%";
+
+    $("lightStatus").textContent =
+        light > 850 ? "Very dark environment" :
+        light > 780 ? "Dark environment" :
+        light > 700 ? "Low light level" :
+        "Bright environment";
+
+    highlightCard("lightCard",light);
+
+    // Eight LEDs
+    $("ledValue").textContent = ledCount + " / 8";
+
+    $("ledStatus").textContent =
+        ledCount === 0 ? "All lights off" :
+        ledCount === 8 ? "All eight lights active" :
+        ledCount + " lights active";
+
+    for (let i=1;i<=LED_COUNT;i++) {
+        const isOn = i <= ledCount;
+
+        $("bulb"+i).classList.toggle("on",isOn);
+        $("led"+i+"Status").textContent = isOn ? "ON" : "OFF";
+        $("led"+i+"Status").classList.toggle("on",isOn);
+    }
+
+    highlightCard("ledCard",ledCount);
+
+    // Energy mode
+    $("energyValue").textContent = lightsOn ? "ACTIVE" : "SAVING";
+    $("energyStatus").textContent = lightsOn ? "Lighting system is active" : "Lights switched off";
+    highlightCard("energyCard",lightsOn);
+
+    // Energy
+    updateEnergy(ledCount);
+
+    if (latestSensorData) {
+        latestSensorData.wattwiseEnergyWh = wattwiseEnergyWh;
+        latestSensorData.baselineEnergyWh = baselineEnergyWh;
+    }
+
+    // Temperature
+    const validTemp = temperature !== null && temperature !== undefined && Number.isFinite(Number(temperature));
+    const validHumidity = humidity !== null && humidity !== undefined && Number.isFinite(Number(humidity));
+
+    if (validTemp) {
+        $("tempValue").textContent = Number(temperature).toFixed(1) + " °C";
+        $("bottomTemp").textContent = Number(temperature).toFixed(1) + " °C";
+        updateTemperatureAlert(Number(temperature));
+        highlightCard("tempCard",temperature);
+    } else {
+        $("tempValue").textContent = "-- °C";
+        $("bottomTemp").textContent = "-- °C";
+        $("temperatureAlert").className = "temperature-alert alert-error";
+        $("alertMessage").textContent = "Temperature unavailable";
+        $("alertDescription").textContent = "Check the DHT11 sensor.";
+    }
+
+    if (validHumidity) {
+        $("humidityValue").textContent = Number(humidity).toFixed(1) + " %";
+        $("bottomHumidity").textContent = Number(humidity).toFixed(1) + " %";
+        highlightCard("humidityCard",humidity);
+    } else {
+        $("humidityValue").textContent = "-- %";
+        $("bottomHumidity").textContent = "-- %";
+    }
+
+    $("environmentStatus").textContent =
+        "DHT11 status: " +
+        (validTemp && validHumidity
+            ? "Receiving temperature and humidity data."
+            : "Some readings are unavailable.");
+}
+
+// =====================================
+// TEMPERATURE ALERT
+// =====================================
+
+function updateTemperatureAlert(temp) {
+    const box = $("temperatureAlert");
+    box.className = "temperature-alert";
+
+    if (temp < 28) {
+        box.classList.add("alert-normal");
+        $("alertMessage").textContent = "Normal temperature";
+        $("alertDescription").textContent = "The measured temperature is below 28°C.";
+    }
+    else if (temp <= 32) {
+        box.classList.add("alert-moderate");
+        $("alertMessage").textContent = "Moderate temperature";
+        $("alertDescription").textContent = "The measured temperature is between 28°C and 32°C.";
+    }
+    else {
+        box.classList.add("alert-high");
+        $("alertMessage").textContent = "High temperature";
+        $("alertDescription").textContent = "The measured temperature is above 32°C.";
+    }
+}
+
+// =====================================
+// ENERGY CALCULATIONS
+// =====================================
+
+function updateEnergy(ledCount) {
+    const now = Date.now();
+
+    if (lastUpdateTime !== null) {
+        const elapsedHours = (now-lastUpdateTime)/3600000;
+
+        wattwiseEnergyWh += lastPowerWatts * elapsedHours;
+
+        const baselinePower = LED_COUNT * LED_POWER_WATTS;
+        baselineEnergyWh += baselinePower * elapsedHours;
+    }
+
+    lastUpdateTime = now;
+    currentLedCount = ledCount;
+    lastPowerWatts = ledCount * LED_POWER_WATTS;
+
+    const label = new Date().toLocaleTimeString([],{
+        hour:"2-digit",minute:"2-digit",second:"2-digit"
+    });
+
+    liveChart.data.labels.push(label);
+    liveChart.data.datasets[0].data.push(wattwiseEnergyWh);
+    liveChart.data.datasets[1].data.push(baselineEnergyWh);
+
+    if (liveChart.data.labels.length > 60) {
+        liveChart.data.labels.shift();
+        liveChart.data.datasets.forEach(dataset => dataset.data.shift());
+    }
+
+    liveChart.update("none");
+
+    $("energySummary").textContent =
+        "Current estimated power: " + lastPowerWatts.toFixed(2) +
+        " W · WATTWISE energy: " + wattwiseEnergyWh.toFixed(6) +
+        " Wh · Without WATTWISE: " + baselineEnergyWh.toFixed(6) + " Wh";
+}
+
+function resetEnergyGraph() {
+    wattwiseEnergyWh = 0;
+    baselineEnergyWh = 0;
+    lastUpdateTime = Date.now();
+    lastPowerWatts = currentLedCount * LED_POWER_WATTS;
+
+    liveChart.data.labels = [];
+    liveChart.data.datasets.forEach(dataset => dataset.data = []);
+    liveChart.update();
+
+    $("energySummary").textContent =
+        "Current estimated power: " + lastPowerWatts.toFixed(2) +
+        " W · WATTWISE energy: 0.000000 Wh · Without WATTWISE: 0.000000 Wh";
+}
+
+$("resetEnergyBtn").addEventListener("click",resetEnergyGraph);
+
+// =====================================
+// DEMO MODE
+// =====================================
+
+const demoReadings = [
+    {motion:1,light:890,lights:1,temp:29,humidity:52},
+    {motion:1,light:820,lights:1,temp:29,humidity:52},
+    {motion:1,light:740,lights:1,temp:30,humidity:53},
+    {motion:1,light:650,lights:1,temp:30,humidity:53},
+    {motion:0,light:890,lights:0,temp:30,humidity:53},
+    {motion:0,light:760,lights:0,temp:29,humidity:52}
+];
+
+function stopDemo() {
+    clearInterval(demoTimer);
+    demoTimer = null;
+    demoRunning = false;
+    demoPaused = false;
+
+    $("demoBtn").textContent = "▶ Demo Mode";
+    $("pauseBtn").textContent = "⏸ Pause";
+    $("pauseBtn").disabled = true;
+    $("demoBanner").classList.remove("visible");
+}
+
+function runDemoStep() {
+    if (!demoRunning || demoPaused) return;
+
+    currentDataSource = "demo";
+    updateDashboard(demoReadings[demoIndex]);
+    demoIndex = (demoIndex+1)%demoReadings.length;
+}
+
+function startDemo() {
+    if (port) {
+        alert("Disconnect the Arduino before starting Demo Mode.");
+        return;
+    }
+
+    if (demoRunning) {
+        stopDemo();
+        currentDataSource = "none";
+        return;
+    }
+
+    demoRunning = true;
+    demoPaused = false;
+    demoIndex = 0;
+
+    $("demoBtn").textContent = "■ Stop Demo";
+    $("pauseBtn").disabled = false;
+    $("demoBanner").classList.add("visible");
+
+    runDemoStep();
+    demoTimer = setInterval(runDemoStep,1800);
+}
+
+$("demoBtn").addEventListener("click",startDemo);
+
+$("pauseBtn").addEventListener("click",() => {
+    if (!demoRunning) return;
+
+    demoPaused = !demoPaused;
+    $("pauseBtn").textContent = demoPaused ? "▶ Resume" : "⏸ Pause";
+
+    if (!demoPaused) runDemoStep();
+});
+
+// =====================================
+// ARDUINO CONNECTION
+// =====================================
+
+async function connectArduino() {
+    if (!("serial" in navigator)) {
+        alert("Web Serial is not supported. Use Chrome or Edge and open this page through Live Server.");
+        return;
+    }
+
+    try {
+        stopDemo();
+
+        port = await navigator.serial.requestPort();
+        await port.open({baudRate:9600});
+
+        lastUpdateTime = null;
+
+        $("connectionStatus").textContent = "Connected";
+        $("connectionDot").classList.add("connected");
+        $("connectBtn").textContent = "Arduino Connected";
+
+        currentDataSource = "arduino";
+        readArduino();
+    }
+    catch(error) {
+        console.error(error);
+
+        $("connectionStatus").textContent = "Not connected";
+        $("connectionDot").classList.remove("connected");
+        $("connectBtn").textContent = "⚡ Connect Arduino";
+
+        port = null;
+        currentDataSource = "none";
+
+        alert("Could not connect. Check the USB cable and close Arduino Serial Monitor before connecting.");
+    }
+}
+
+async function readArduino() {
+    if (!port) return;
+
+    const decoder = new TextDecoderStream();
+    port.readable.pipeTo(decoder.writable).catch(()=>{});
+    reader = decoder.readable.getReader();
+
+    let buffer = "";
+
+    try {
+        while (true) {
+            const {value,done} = await reader.read();
+            if (done) break;
+            if (!value) continue;
+
+            buffer += value;
+            const lines = buffer.split(/\r?\n/);
+            buffer = lines.pop();
+
+            for (const line of lines) {
+                parseArduinoLine(line.trim());
+            }
+        }
+    }
+    catch(error) {
+        console.error("Serial reading error:",error);
+    }
+    finally {
+        if (reader) {
+            reader.releaseLock();
+            reader = null;
+        }
+
+        lastUpdateTime = null;
+    }
+}
+
+// Serial format:
+// motion,light,lightsOn,temperature,humidity
+
+function parseArduinoLine(line) {
+    if (!line) return;
+
+    const values = line.split(",");
+
+    if (values.length !== 5) {
+        console.warn("Invalid Arduino data:",line);
+        return;
+    }
+
+    const motion = Number(values[0]);
+    const light = Number(values[1]);
+    const lights = Number(values[2]);
+
+    const temp = values[3].trim().toUpperCase() === "ERROR" ? NaN : Number(values[3]);
+    const humidity = values[4].trim().toUpperCase() === "ERROR" ? NaN : Number(values[4]);
+
+    if (![motion,light,lights].every(Number.isFinite)) {
+        console.warn("Invalid sensor values:",line);
+        return;
+    }
+
+    currentDataSource = "arduino";
+
+    updateDashboard({motion,light,lights,temp,humidity});
+}
+
+$("connectBtn").addEventListener("click",connectArduino);
+
+// =====================================
+// WATTWISE AI ASSISTANT
+// =====================================
+
+let chatBusy = false;
+
+function setAssistantStatus(status,text) {
+    $("assistantStatus").classList.toggle("ready",status === "ready");
+    $("assistantStatusText").textContent = text;
+}
+
+function addChatMessage(message,type="assistant") {
+    const container = $("chatMessages");
+    const messageElement = document.createElement("div");
+    messageElement.className = "chat-message " + type;
+
+    const avatar = document.createElement("div");
+    avatar.className = "chat-avatar";
+    avatar.textContent = type === "user" ? "👤" : "⚡";
+
+    const content = document.createElement("div");
+    const bubble = document.createElement("div");
+    bubble.className = "chat-bubble";
+    bubble.textContent = message;
+
+    const time = document.createElement("div");
+    time.className = "chat-time";
+    time.textContent = type === "user" ? "You" : "WATTWISE Assistant";
+
+    content.appendChild(bubble);
+    content.appendChild(time);
+    messageElement.appendChild(avatar);
+    messageElement.appendChild(content);
+    container.appendChild(messageElement);
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function setChatLoading(loading) {
+    chatBusy = loading;
+    $("typingIndicator").classList.toggle("visible",loading);
+    $("sendBtn").disabled = loading;
+    $("chatInput").disabled = loading;
+    $("chatMessages").scrollTop = $("chatMessages").scrollHeight;
+}
+
+async function sendAssistantMessage(message) {
+    const cleanMessage = message.trim();
+    if (!cleanMessage || chatBusy) return;
+
+    addChatMessage(cleanMessage,"user");
+    $("chatInput").value = "";
+    setChatLoading(true);
+    setAssistantStatus("waiting","Thinking...");
+
+    try {
+        const response = await fetch("/api/chat",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({
+                message:cleanMessage,
+                sensorData:latestSensorData
+            })
+        });
+
+        let result;
+
+        try {
+            result = await response.json();
+        }
+        catch {
+            throw new Error("The backend returned an invalid response. Check that server.js is running.");
+        }
+
+        if (!response.ok) {
+            throw new Error(result.error || "The assistant request failed.");
+        }
+
+        if (!result || typeof result.reply !== "string" || !result.reply.trim()) {
+            throw new Error("The backend did not return an assistant reply.");
+        }
+
+        addChatMessage(result.reply,"assistant");
+        setAssistantStatus("ready","Assistant ready");
+    }
+    catch(error) {
+        console.error("WATTWISE Assistant:",error);
+
+        addChatMessage(
+            "I couldn't reach the WATTWISE AI backend.\n\n" +
+            "Please check that:\n" +
+            "1. The Node.js server is running.\n" +
+            "2. The backend is available at /api/chat.\n" +
+            "3. Your internet connection is working if the backend uses an online AI service.\n\n" +
+            "Technical information: " + error.message,
+            "assistant"
+        );
+
+        setAssistantStatus("offline","Backend unavailable");
+    }
+    finally {
+        setChatLoading(false);
+        $("chatInput").focus();
+    }
+}
+
+$("chatForm").addEventListener("submit",event => {
+    event.preventDefault();
+    sendAssistantMessage($("chatInput").value);
+});
+
+document.querySelectorAll(".suggestion-btn").forEach(button => {
+    button.addEventListener("click",() => {
+        sendAssistantMessage(button.dataset.question);
+    });
+});
+
+// =====================================
+// NAVIGATION
+// =====================================
+
+const navLinks = document.querySelectorAll(".nav-link");
+const sections = document.querySelectorAll("main section");
+
+const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+
+        navLinks.forEach(link => {
+            link.classList.toggle(
+                "active",
+                link.getAttribute("href") === "#"+entry.target.id
+            );
+        });
+    });
+},{threshold:0.25});
+
+sections.forEach(section => observer.observe(section));
+
+// =====================================
+// INITIAL STATE
+// =====================================
+
+currentDataSource = "none";
+
+updateDashboard({
+    motion:0,
+    light:500,
+    lights:0,
+    temp:NaN,
+    humidity:NaN
+});
+
+resetEnergyGraph();
+
+setAssistantStatus("offline","Backend not connected");
+</script>
+</body>
+</html>
