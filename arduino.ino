@@ -75,13 +75,13 @@ void loop() {
 
   if (classroomOccupied) {
     if (lightValue > veryDarkThreshold) {
-      requiredLEDs = 8;
+      requiredLEDs = 3 5;
     }
     else if (lightValue > mediumLightThreshold) {
-      requiredLEDs = 6;
+      requiredLEDs = 5 8 10 ;
     }
     else if (lightValue > lowLightThreshold) {
-      requiredLEDs = 4;
+      requiredLEDs = 3 5 8 11;
     }
     else {
       requiredLEDs = 0;
